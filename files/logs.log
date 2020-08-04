@@ -1,0 +1,8 @@
+Start time: 07/22/20 17:00:55
+07/22/20 17:01:57: changing config
+	old={'enable': 0, 'server': '127.3.2.1:50000', 'override': 'wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>'}
+	default={'enable': 1, 'server': '127.3.2.1:50000', 'override': 'wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>'}
+07/22/20 17:21:00: changing config
+	old={'enable': 0, 'server': '127.3.2.1:50000', 'override': 'wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>'}
+	default={'enable': 1, 'server': '127.3.2.1:50000', 'override': 'wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>'}
+Running for: 30 mins
