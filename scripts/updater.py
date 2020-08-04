@@ -2,18 +2,31 @@
 
 import urllib.request
 import json
+from zipfile import ZipFile
 
 class Updater():
     def __init__(self):
-        self.urlbase = (r"https://drive.google.com/uc?id=", r"&export=download")
-        self.meta_id = r"1gT-wyS4HX8LXpYouMnc5kjvG-enRReDm"
-        # https://drive.google.com/file/d//view?usp=sharing
-        # self.meta_id = "1VmRLM85F4xRX0BDhpxvt5y9JF9FIXB1L"
+        self._urlbase = (r"https://drive.google.com/uc?id=", r"&export=download")
+        self._url = r"https://github.com/ccie57960/win_registry/archive/source.zip"
+        self._path = r"/home/peter/Desktop/rm_monthly/testgit/source.zip"
 
     def get_meta(self):
-        url = r"https://drive.google.com/uc?id=1gT-wyS4HX8LXpYouMnc5kjvG-enRReDm&export=download"
-        o = urllib.request.urlopen(url)
-        data = o.read()
-        data = data.decode("utf-8")
-        o.close()
-        return json.loads(data)
+        dict = {}
+        try:
+            with urllib.request.urlopen(self._url) as data:
+                o = data.read()
+                with open(self._path, "wb+") as pf:
+                    pf.write(o)
+
+            with ZipFile(self._path) as z:
+                if 'win_registry-source/meta.json' in z.namelist():
+                    dict = json.loads(z.read('win_registry-source/meta.json'))
+        except:
+            #pending: logging a least
+            pass
+        return dict
+
+if __name__ == "__main__":
+    obj = Updater()
+    d = obj.get_meta()
+    print(d)

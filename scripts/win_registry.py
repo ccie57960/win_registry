@@ -24,21 +24,21 @@ def query_intset():
 
 def read_local():
     global path_local
-   
+
     if not path.exists(path_local):
         logit(f"Not local.json at {path_local}")
         default_values = {"enable": 1,
     "server": "127.3.2.1:50000",
     "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>"}
-  
+
         with open(path_local, "w+") as pf:
             dump(default_values, pf, indent=1)
-            
+
         return default_values
 
     with open(path_local, "r") as pf:
         values = load(pf)
-    return values
+    return values["config"]
 
 def set_reg():
     default = read_local()
@@ -83,4 +83,4 @@ if __name__ == "__main__":
         c += 1
         if not (c % 5):
            logit(f'Running for: {(time() - t)//60} mins')
-           c = 0           
+           c = 0

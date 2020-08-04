@@ -1,5 +1,10 @@
 {
- "enable": 1,
- "server": "127.3.2.1:50000",
- "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>"
+"config":{
+  "enable": 1,
+  "server": "127.3.2.1:50000",
+  "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>"
+},
+ "meta":{
+   "version":1
+ }
 }
