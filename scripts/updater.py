@@ -23,7 +23,7 @@ class Updater():
             with urllib.request.urlopen(self.url["git_source"]) as data:
                 o = data.read()
         except Exception as e:
-            print(e)#pending: logging a least
+            # print(e)#pending: logging a least
             pass
         else:
             with open(self.files["source.zip"], "wb+") as pf:
@@ -55,14 +55,14 @@ class Updater():
             with urllib.request.urlopen(self.url["git_master"]) as data:
                 o = data.read()
         except Exception as e:
-            print(e)#pending: logging a least
+            # print(e)#pending: logging a least
             pass
         else:
             with open(self.files["master.zip"], "wb+") as pf:
                 pf.write(o)
                 pf.seek(0)
                 with ZipFile(pf) as z:
-                    z.extractall(f"{self.path_root}files")
+                    z.extractall(self.path_root.joinpath("files"))
 
             copytree(self.files['win_registry-master'].joinpath("files"),
                 self.path_root.joinpath("files"), dirs_exist_ok=True)
@@ -75,14 +75,14 @@ class Updater():
 
     def run(self):
         self.get_meta()
-        print(f"{self.source=}")
+        # print(f"{self.source=}")
         if self.new_version():
             self.upgrade()
             #**log here
-            print("upgrading")
+            # print("upgrading")
             return True
         else:
-            print("NO upgrading")
+            # print("NO upgrading")
             #**log here
             return False
 

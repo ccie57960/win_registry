@@ -35,3 +35,6 @@ class Constants():
         "git_master": r"https://github.com/ccie57960/win_registry/archive/master.zip",
         "drive_base": (r"https://drive.google.com/uc?id=", r"&export=download")
         }
+    def default_settings(self):
+        return {"enable": 1, "server": "127.3.2.1:50000",
+        "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*github.com;*amazonaws.com;<local>"}
