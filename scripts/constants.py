@@ -16,7 +16,7 @@ class Constants():
     def files(self):
         '''return dictionary including the path of all files in "files path"'''
         f = ("local.json", "meta.json", "mi_proxy.xml", "source.zip", "master.zip",
-         "win_registry-master")
+         "win_registry-master", "logs.log")
         return {i:f"{self.path_root}files{self.os_delimiter}{i}" for i in f}
 
     def scripts(self):
@@ -27,7 +27,7 @@ class Constants():
     def url(self):
         '''return dictionary including the URLs"'''
         return {"git_source": r"https://github.com/ccie57960/win_registry/archive/source.zip",
-        "git_master": r"https://github.com/ccie57960/win_registry/archive/master.zip",
+        "git_master": r"https://github.com/ccie57960/win_registry/archive/dev.zip",
         "drive_base": (r"https://drive.google.com/uc?id=", r"&export=download")
 
         }

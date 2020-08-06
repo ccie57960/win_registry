@@ -38,13 +38,13 @@ class Updater():
         '''return True if new version available by comparing
         meta.json (source brach) vs local.json (files directory)
         c'''
-        version = self.source.get("meta", {}).get("version")
-        if version == None:
+        lastest_version = self.source.get("meta", {}).get("version")
+        if lastest_version == None:
             return False
 
-        with open(self.files["local.json"]) as pf:
-            local = json.load(pf)
-        return version > local.get("meta", {}).get("version", 0)
+        with open(self.files["meta.json"]) as pf:
+            meta = json.load(pf)
+        return lastest_version > meta.get("meta", {}).get("version", 0)
 
     def upgrade(self):
         '''download source branch from github.
@@ -73,9 +73,11 @@ class Updater():
         self.get_meta()
         if self.new_version():
             self.upgrade()
+            #**log here
+            return True
         else:
-            #log here
-            pass
+            #**log here
+            return False
 
 
 if __name__ == "__main__":
