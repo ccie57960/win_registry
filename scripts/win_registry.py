@@ -5,11 +5,9 @@ from json import dump, load
 import logging
 from time import strftime, sleep, time
 from getpass import getuser
+from updater import Updater
+from constants import Constants
 
-interval = 60 #run every X seconds
-path_root = r"C:\Users\Pedro\project_b"
-path_log = fr"{path_root}\files\logs.log"
-path_local = fr"{path_root}\files\local.json"
 
 def query_intset():
     cli = 'REG QUERY "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings"'
@@ -23,28 +21,28 @@ def query_intset():
     return proxy
 
 def read_local():
-    global path_local
-   
+    path_local = Constants().files().get("local.json")
+
     if not path.exists(path_local):
         logit(f"Not local.json at {path_local}")
-        default_values = {"enable": 1,
-    "server": "127.3.2.1:50000",
-    "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>"}
-  
-        with open(path_local, "w+") as pf:
-            dump(default_values, pf, indent=1)
-            
-        return default_values
+        if not Updater().run():
+            default_values = {"enable": 1,
+            "server": "127.3.2.1:50000",
+            "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>"}
+            with open(path_local, "w+") as pf:
+                dump(default_values, pf, indent=1)
+
+            return default_values
 
     with open(path_local, "r") as pf:
         values = load(pf)
-    return values
+    return values["config"]
 
 def set_reg():
     default = read_local()
     old = query_intset()
     if default == old:
-        return
+        return False
 
     logit(f'Changing config\n\t{old=}\n\t{default=}')
     cmd = f'''REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d {default["enable"]} /f
@@ -54,17 +52,17 @@ REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v Pr
     cmd = cmd.split("\n")
     for i in cmd:
         popen(i).read()
-
+    return True
 
 def logit(s):
-    global path_log
+    path_log = Constants().files().get("logs.log")
     with open(path_log, "a+") as pf:
         pf.write(f'{strftime("%x %X")} - user: {getuser()} - {s}\n')
 
-def log_control():
+def log_control(size = 100000):
     '''limit the number of lines of logfile to size//2 once size is reached'''
-    global path_log
-    size = 100000
+    path_log = Constants().files().get("logs.log")
+
     with open(path_log) as pf:
         data = pf.readlines()
     if len(data) > size:
@@ -75,12 +73,17 @@ def log_control():
 if __name__ == "__main__":
     logit(f'Start time')
     log_control()
-    c = 0
+    Updater().run()
+    interval = 60 #run every X seconds
+    c = 10
     t = time()
     while True:
-        set_reg()
+        if set_reg():
+            if interval > 3:
+                interval //= 2
+                logit(f'Now running every {interval=} (seconds)')
         sleep(interval)
-        c += 1
-        if not (c % 5):
+        c -= (interval/60)
+        if c < 0:
            logit(f'Running for: {(time() - t)//60} mins')
-           c = 0           
+           c = 10
