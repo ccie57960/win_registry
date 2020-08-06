@@ -12,7 +12,6 @@ class Updater():
         c = Constants()
         self.files = c.files()
         self.url = c.url()
-        self.os_delimiter = c.os_delimiter
         self.path_root = c.path_root
 
     def get_meta(self):
@@ -23,6 +22,10 @@ class Updater():
         try:
             with urllib.request.urlopen(self.url["git_source"]) as data:
                 o = data.read()
+        except Exception as e:
+            print(e)#pending: logging a least
+            pass
+        else:
             with open(self.files["source.zip"], "wb+") as pf:
                 pf.write(o)
                 pf.seek(0)
@@ -30,9 +33,7 @@ class Updater():
                     if 'win_registry-source/meta.json' in z.namelist():
                         self.source = json.loads(z.read('win_registry-source/meta.json'))
             remove(f'{self.files["source.zip"]}')
-        except Exception as e:
-            # print(e)#pending: logging a least
-            pass
+
 
     def new_version(self):
         '''return True if new version available by comparing
@@ -53,29 +54,35 @@ class Updater():
         try:
             with urllib.request.urlopen(self.url["git_master"]) as data:
                 o = data.read()
+        except Exception as e:
+            print(e)#pending: logging a least
+            pass
+        else:
             with open(self.files["master.zip"], "wb+") as pf:
                 pf.write(o)
                 pf.seek(0)
                 with ZipFile(pf) as z:
                     z.extractall(f"{self.path_root}files")
 
-            copytree(f"{self.files['win_registry-master']}{self.os_delimiter}files",
-             f"{self.path_root}files", dirs_exist_ok=True)
-            copytree(f"{self.files['win_registry-master']}{self.os_delimiter}scripts",
-             f"{self.path_root}scripts", dirs_exist_ok=True)
+            copytree(self.files['win_registry-master'].joinpath("files"),
+                self.path_root.joinpath("files"), dirs_exist_ok=True)
+            copytree(self.files['win_registry-master'].joinpath("scripts"),
+                self.path_root.joinpath("scripts"), dirs_exist_ok=True)
+
             rmtree(self.files['win_registry-master'])
             remove(self.files["master.zip"])
-        except Exception as e:
-            # print(e)#pending: logging a least
-            pass
+
 
     def run(self):
         self.get_meta()
+        print(f"{self.source=}")
         if self.new_version():
             self.upgrade()
             #**log here
+            print("upgrading")
             return True
         else:
+            print("NO upgrading")
             #**log here
             return False
 
