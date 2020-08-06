@@ -5,6 +5,7 @@ import json
 from zipfile import ZipFile
 from constants import Constants
 from os import remove
+from shutil import copytree, rmtree
 
 class Updater():
     def __init__(self):
@@ -37,22 +38,45 @@ class Updater():
         '''return True if new version available by comparing
         meta.json (source brach) vs local.json (files directory)
         c'''
-        if self.source.get("version") == None:
+        version = self.source.get("meta", {}).get("version")
+        if version == None:
             return False
 
-        with open(self.file["local.json"]) as pf:
+        with open(self.files["local.json"]) as pf:
             local = json.load(pf)
-
-        return self.source.get("version") > local.get("meta", {}).get("version", 0)
+        return version > local.get("meta", {}).get("version", 0)
 
     def upgrade(self):
-        pass
+        '''download source branch from github.
+        store meta.json in self.source:dict
+        '''
+        try:
+            with urllib.request.urlopen(self.url["git_master"]) as data:
+                o = data.read()
+            with open(self.files["master.zip"], "wb+") as pf:
+                pf.write(o)
+                pf.seek(0)
+                with ZipFile(pf) as z:
+                    z.extractall(f"{self.path_root}files")
 
+            copytree(f"{self.files['win_registry-master']}{self.os_delimiter}files",
+             f"{self.path_root}files", dirs_exist_ok=True)
+            copytree(f"{self.files['win_registry-master']}{self.os_delimiter}scripts",
+             f"{self.path_root}scripts", dirs_exist_ok=True)
+            rmtree(self.files['win_registry-master'])
+            remove(self.files["master.zip"])
+        except Exception as e:
+            # print(e)#pending: logging a least
+            pass
+
+    def run(self):
+        self.get_meta()
+        if self.new_version():
+            self.upgrade()
+        else:
+            #log here
+            pass
 
 
 if __name__ == "__main__":
-    obj = Updater()
-    # obj.get_meta()
-    obj.get_meta()
-    # print(obj.source)
-    print(obj.new_version())
+    Updater().run()

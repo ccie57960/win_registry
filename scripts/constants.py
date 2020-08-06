@@ -11,10 +11,12 @@ class Constants():
         else:
             self.os_delimiter = "/"
             self.path_root = r"/media/Data/MyDoc/Python/win_registry/"
+            self.path_root = r"/home/peter/Desktop/rm_monthly/testgit/"
 
     def files(self):
         '''return dictionary including the path of all files in "files path"'''
-        f = ("local.json", "meta.json", "mi_proxy.xml", "source.zip")
+        f = ("local.json", "meta.json", "mi_proxy.xml", "source.zip", "master.zip",
+         "win_registry-master")
         return {i:f"{self.path_root}files{self.os_delimiter}{i}" for i in f}
 
     def scripts(self):
