@@ -2,6 +2,7 @@
 
 from sys import platform
 from pathlib import Path
+import logging
 
 class Constants():
     '''Constant variables like path for the project'''
@@ -35,6 +36,16 @@ class Constants():
         "git_master": r"https://github.com/ccie57960/win_registry/archive/master.zip",
         "drive_base": (r"https://drive.google.com/uc?id=", r"&export=download")
         }
+
     def default_settings(self):
         return {"enable": 1, "server": "127.3.2.1:50000",
         "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*github.com;*amazonaws.com;<local>"}
+
+    def logger(self):
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s;%(levelname)s;%(module)s;%(lineno)d;%(message)s')
+        file_handler = logging.FileHandler(f"{self.files()['logs.log']}")
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        return logger

@@ -13,6 +13,7 @@ class Updater():
         self.files = c.files()
         self.url = c.url()
         self.path_root = c.path_root
+        self.logger = c.logger()
 
     def get_meta(self):
         '''download source branch from github.
@@ -23,8 +24,7 @@ class Updater():
             with urllib.request.urlopen(self.url["git_source"]) as data:
                 o = data.read()
         except Exception as e:
-            # print(e)#pending: logging a least
-            pass
+            self.logger.error(f'Tring "urlopen({self.url["git_source"]}", Got:{e}')
         else:
             with open(self.files["source.zip"], "wb+") as pf:
                 pf.write(o)
@@ -55,8 +55,7 @@ class Updater():
             with urllib.request.urlopen(self.url["git_master"]) as data:
                 o = data.read()
         except Exception as e:
-            # print(e)#pending: logging a least
-            pass
+            self.logger.error(f'Tring "urlopen({self.url["git_master"]}", Got:{e}')
         else:
             with open(self.files["master.zip"], "wb+") as pf:
                 pf.write(o)
@@ -71,15 +70,15 @@ class Updater():
 
             rmtree(self.files['win_registry-master'])
             remove(self.files["master.zip"])
+            self.logger.info(f'Successfully upgraded')
 
 
     def run(self):
         self.get_meta()
         # print(f"{self.source=}")
         if self.new_version():
+            self.logger.info(f'New version available, upgrading...')
             self.upgrade()
-            #**log here
-            # print("upgrading")
             return True
         else:
             # print("NO upgrading")
