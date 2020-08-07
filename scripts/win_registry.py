@@ -1,5 +1,5 @@
 #!/usr/bin/python3.8
-from os import popen, path
+from os import popen
 from re import search
 from json import dump, load
 import logging
@@ -8,6 +8,7 @@ from getpass import getuser
 from updater import Updater
 from constants import Constants
 
+logger = Constants().logger()
 
 def query_intset():
     cli = 'REG QUERY "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings"'
@@ -21,18 +22,22 @@ def query_intset():
     return proxy
 
 def read_local():
+    global logger
     path_local = Constants().files().get("local.json")
 
-    if not path.exists(path_local):
-        logit(f"Not local.json at {path_local}")
-        if not Updater().run():
-            default_values = {"enable": 1,
+    if not path_local.is_file():
+        logger.error(f"Not local.json at {path_local}...Trying upgrade")
+        if not Updater(logger, force=True).run():
+            default_values = {"config":{
+            "enable": 1,
             "server": "127.3.2.1:50000",
-            "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*amazonaws.com;<local>"}
+            "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*github.com;*amazonaws.com;<local>"}}
+            logger.warning(f"local.json set to defaults: {default_values}")
+
             with open(path_local, "w+") as pf:
                 dump(default_values, pf, indent=1)
 
-            return default_values
+            return default_values["config"]
 
     with open(path_local, "r") as pf:
         values = load(pf)
@@ -44,7 +49,7 @@ def set_reg():
     if default == old:
         return False
 
-    logit(f'Changing config\n\t{old=}\n\t{default=}')
+    logger.warning(f"Changing config {old=} {default=}")
     cmd = f'''REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d {default["enable"]} /f
 REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /t REG_SZ /d {default["server"]} /f
 REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyOverride /t REG_SZ /d "{default["override"]}" /f
@@ -53,11 +58,6 @@ REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v Pr
     for i in cmd:
         popen(i).read()
     return True
-
-def logit(s):
-    path_log = Constants().files().get("logs.log")
-    with open(path_log, "a+") as pf:
-        pf.write(f'{strftime("%x %X")} - user: {getuser()} - {s}\n')
 
 def log_control(size = 100000):
     '''limit the number of lines of logfile to size//2 once size is reached'''
@@ -71,19 +71,26 @@ def log_control(size = 100000):
             pf.writelines(data[size:])
 
 if __name__ == "__main__":
-    logit(f'Start time')
+    logger.info("Start time")
     log_control()
-    Updater().run()
+    Updater(logger).run()
     interval = 60 #run every X seconds
     c = 10
+    dampening = 60 #60 minutes
     t = time()
     while True:
         if set_reg():
-            if interval > 3:
-                interval //= 2
-                logit(f'Now running every {interval=} (seconds)')
+            interval = 5
+            dampening = 60
+            logger.warning(f"Decreasing validation time to {interval=} (seconds)")
+        else:
+            if interval == 5:
+                dampening -= (interval/60)
+                if dampening < 0:
+                    logger.warning(f"Validation restored to {interval=} (seconds)")
+                    interval = 60
         sleep(interval)
         c -= (interval/60)
         if c < 0:
-           logit(f'Running for: {(time() - t)//60} mins')
-           c = 10
+            logger.info(f"Running for: {(time() - t)//60} mins")
+            c = 10

@@ -8,11 +8,14 @@ from os import remove
 from shutil import copytree, rmtree
 
 class Updater():
-    def __init__(self):
+    def __init__(self, logger, force=False):
         c = Constants()
         self.files = c.files()
         self.url = c.url()
         self.path_root = c.path_root
+        self.force = force
+        self.logger = logger
+        # self.logger = c.logger()
 
     def get_meta(self):
         '''download source branch from github.
@@ -23,8 +26,8 @@ class Updater():
             with urllib.request.urlopen(self.url["git_source"]) as data:
                 o = data.read()
         except Exception as e:
-            print(e)#pending: logging a least
-            pass
+            self.logger.error(f'Tring "urlopen({self.url["git_source"]}", Got:{e}')
+            return False
         else:
             with open(self.files["source.zip"], "wb+") as pf:
                 pf.write(o)
@@ -33,19 +36,20 @@ class Updater():
                     if 'win_registry-source/meta.json' in z.namelist():
                         self.source = json.loads(z.read('win_registry-source/meta.json'))
             remove(f'{self.files["source.zip"]}')
+            return True
 
 
     def new_version(self):
         '''return True if new version available by comparing
         meta.json (source brach) vs local.json (files directory)
         c'''
-        lastest_version = self.source.get("meta", {}).get("version")
-        if lastest_version == None:
-            return False
-
-        with open(self.files["meta.json"]) as pf:
-            meta = json.load(pf)
-        return lastest_version > meta.get("meta", {}).get("version", 0)
+        if self.files["meta.json"].is_file():
+            with open(self.files["meta.json"]) as pf:
+                meta = json.load(pf).get("meta", {}).get("version", 0)
+        else:
+            meta = 0
+            self.logger.error(f'{self.files["meta.json"]} NotFound')
+        return self.source["meta"]["version"] > meta
 
     def upgrade(self):
         '''download source branch from github.
@@ -55,14 +59,13 @@ class Updater():
             with urllib.request.urlopen(self.url["git_master"]) as data:
                 o = data.read()
         except Exception as e:
-            print(e)#pending: logging a least
-            pass
+            self.logger.error(f'Tring "urlopen({self.url["git_master"]}", Got:{e}')
         else:
             with open(self.files["master.zip"], "wb+") as pf:
                 pf.write(o)
                 pf.seek(0)
                 with ZipFile(pf) as z:
-                    z.extractall(f"{self.path_root}files")
+                    z.extractall(self.path_root.joinpath("files"))
 
             copytree(self.files['win_registry-master'].joinpath("files"),
                 self.path_root.joinpath("files"), dirs_exist_ok=True)
@@ -71,21 +74,22 @@ class Updater():
 
             rmtree(self.files['win_registry-master'])
             remove(self.files["master.zip"])
+            self.logger.info(f'Successfully upgraded')
 
 
     def run(self):
-        self.get_meta()
-        print(f"{self.source=}")
-        if self.new_version():
+        if self.force:
+            self.logger.info(f'Forcing upgrade...')
             self.upgrade()
-            #**log here
-            print("upgrading")
+            return True
+
+        elif self.get_meta() and self.new_version():
+            self.logger.info(f'New version available, upgrading...')
+            self.upgrade()
             return True
         else:
-            print("NO upgrading")
-            #**log here
             return False
 
 
 if __name__ == "__main__":
-    Updater().run()
+    Updater(Constants().logger()).run()
