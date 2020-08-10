@@ -7,6 +7,7 @@ from time import strftime, sleep, time
 from getpass import getuser
 from updater import Updater
 from constants import Constants
+import emailer
 
 logger = Constants().logger()
 
@@ -72,8 +73,9 @@ def log_control(size = 100000):
 
 if __name__ == "__main__":
     logger.info("Start time")
-    log_control()
     Updater(logger).run()
+    emailer.send(logger=logger)
+    log_control()
     interval = 60 #run every X seconds
     c = 10
     dampening = 60 #60 minutes
