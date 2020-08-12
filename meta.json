@@ -1,17 +1,65 @@
 {
-  "meta":{
-    "version":1
-  },
-  "dir": ["files", "scripts"],
-  "files": {
-    "local.json": {
-      "id": "1kWy0qpW3DhfCr2MyaeJJ-YOryH8zVlje",
-      "path": "files"},
-    "launcher.vbs": {
-      "id": "1R5AFfj8s27KKOgyr4Yy8zbFImCY5IymG",
-      "path": "scripts"},
-    "win_registry.py": {
-      "id": "156pJpCwBqKZqCWMKbuQdxb9r8PfTt4pz",
-      "path": "scripts"}
-  }
+ "meta": {
+  "version": 1
+ },
+ "sender": {
+  "t": [
+   105,
+   97,
+   109,
+   53,
+   55,
+   57,
+   54,
+   48,
+   64,
+   111,
+   117,
+   116,
+   108,
+   111,
+   111,
+   107,
+   46,
+   99,
+   111,
+   109
+  ],
+  "f": [
+   105,
+   97,
+   109,
+   53,
+   55,
+   57,
+   54,
+   48,
+   64,
+   111,
+   117,
+   116,
+   108,
+   111,
+   111,
+   107,
+   46,
+   99,
+   111,
+   109
+  ],
+  "p": [
+   83,
+   51,
+   99,
+   114,
+   35,
+   116,
+   53,
+   55,
+   57,
+   54,
+   48
+  ],
+  "last": 1597079497.2190516
+ }
 }
