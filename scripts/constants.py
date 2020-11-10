@@ -8,7 +8,7 @@ class Constants():
     '''Constant variables like path for the project'''
     def __init__(self):
         if "win" in platform.lower():
-            self.path_root = Path("/users/pedro/project_b")
+            self.path_root = Path("/users/projectb/project_b")
         else:
             # self.path_root = Path("/media/Data/MyDoc/Python/win_registry/")
             self.path_root = Path("/home/peter/Desktop/rm_monthly/testgit/")
